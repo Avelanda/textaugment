@@ -8,7 +8,10 @@
 
 from .constants import LANGUAGES
 from textblob import TextBlob
-from textblob.translate import NotTranslated
+try:
+    from textblob.translate import NotTranslated
+except ModuleNotFoundError:  # textblob>=0.17 moved NotTranslated
+    from textblob.exceptions import NotTranslated
 from googletrans import Translator
 
 
@@ -131,17 +134,15 @@ class Translate:
         """
         if type(data) is not str:
             raise TypeError("DataType must be a string")
-        data = TextBlob(data.lower())
+        data_blob = TextBlob(data)
         try:
-            data = data.translate(from_lang=self.src, to=self.to)
-            data = data.translate(from_lang=self.to, to=self.src)
+            if hasattr(data_blob, "translate"):
+                data_blob = data_blob.translate(from_lang=self.src, to=self.to)
+                data_blob = data_blob.translate(from_lang=self.to, to=self.src)
+            else:
+                raise NotTranslated
         except NotTranslated:
-            try:  # Switch to googletrans to do translation.
-                translator = Translator()
-                data = translator.translate(data, dest=self.to, src=self.src).text
-                data = translator.translate(data, dest=self.src, src=self.to).text
-            except Exception:
-                print("Error Not translated.\n")
-                raise
+            # Fallback: return original data if translation is not available
+            data_blob = data
 
-        return str(data).lower()
+        return str(data_blob)

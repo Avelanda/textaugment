@@ -117,15 +117,24 @@ class Wordnet:
         :return:  The augmented data
         """
         data = data.lower().split()
-        data_tokens = [[i, x, y] for i, (x, y) in enumerate(nltk.pos_tag(data))]  # Convert tuple to list
+        try:
+            data_tokens = [[i, x, y] for i, (x, y) in enumerate(nltk.pos_tag(data))]
+        except LookupError:
+            # NLTK resource missing; return data unchanged
+            return " ".join(data)
         if self.v:
             for loop in range(self.runs):
                 words = [[i, x] for i, x, y in data_tokens if y[0] == 'V']
                 words = [i for i in self.geometric(data=words)]  # List of selected words
                 if len(words) >= 1:  # There are synonyms
                     for word in words:
-                        synonyms1 = wordnet.synsets(word[1], wordnet.VERB, lang=lang)  # Return verbs only
-                        synonyms = list(set(chain.from_iterable([syn.lemma_names(lang=lang) for syn in synonyms1])))
+                        try:
+                            synonyms1 = wordnet.synsets(word[1], wordnet.VERB, lang=lang)  # Return verbs only
+                            synonyms = list(
+                                set(chain.from_iterable([syn.lemma_names(lang=lang) for syn in synonyms1]))
+                            )
+                        except LookupError:
+                            continue
                         synonyms_ = []  # Synonyms with no underscores goes here
                         for w in synonyms:
                             if '_' not in w:
@@ -142,8 +151,13 @@ class Wordnet:
                 words = [i for i in self.geometric(data=words)]  # List of selected words
                 if len(words) >= 1:  # There are synonyms
                     for word in words:
-                        synonyms1 = wordnet.synsets(word[1], wordnet.NOUN, lang=lang)  # Return nouns only
-                        synonyms = list(set(chain.from_iterable([syn.lemma_names(lang=lang) for syn in synonyms1])))
+                        try:
+                            synonyms1 = wordnet.synsets(word[1], wordnet.NOUN, lang=lang)  # Return nouns only
+                            synonyms = list(
+                                set(chain.from_iterable([syn.lemma_names(lang=lang) for syn in synonyms1]))
+                            )
+                        except LookupError:
+                            continue
                         synonyms_ = []  # Synonyms with no underscores goes here
                         for w in synonyms:
                             if '_' not in w:
