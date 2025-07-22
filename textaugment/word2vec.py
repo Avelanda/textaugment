@@ -88,7 +88,7 @@ class Word2vec:
                     self.model = gensim.models.Word2Vec.load(self.model)  # load word2vec or fasttext model
             except FileNotFoundError:
                 print("Error: Model not found. Verify the path.\n")
-                raise ValueError("Error: Model not found. Verify the path.")
+                raise FileNotFoundError("Error: Model not found. Verify the path.")
 
     def geometric(self, data):
         """

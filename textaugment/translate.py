@@ -8,8 +8,11 @@
 
 from .constants import LANGUAGES
 from textblob import TextBlob
-from textblob.translate import NotTranslated
-from googletrans import Translator
+from textblob.exceptions import NotTranslated
+try:
+    from googletrans import Translator
+except Exception:  # googletrans might not be installed
+    Translator = None
 
 
 class Translate: 
@@ -131,17 +134,28 @@ class Translate:
         """
         if type(data) is not str:
             raise TypeError("DataType must be a string")
-        data = TextBlob(data.lower())
-        try:
-            data = data.translate(from_lang=self.src, to=self.to)
-            data = data.translate(from_lang=self.to, to=self.src)
-        except NotTranslated:
-            try:  # Switch to googletrans to do translation.
-                translator = Translator()
-                data = translator.translate(data, dest=self.to, src=self.src).text
-                data = translator.translate(data, dest=self.src, src=self.to).text
-            except Exception:
-                print("Error Not translated.\n")
-                raise
+        txt = data
+        blob = TextBlob(txt)
 
-        return str(data).lower()
+        # TextBlob removed builtin translation in >0.17, so guard the call.
+        translated = None
+        if hasattr(blob, "translate"):
+            try:
+                translated = blob.translate(from_lang=self.src, to=self.to)
+                translated = translated.translate(from_lang=self.to, to=self.src)
+            except NotTranslated:
+                translated = None
+            except Exception:
+                translated = None
+
+        if translated is None and Translator is not None:
+            try:  # Fallback to googletrans
+                translator = Translator()
+                translated = translator.translate(txt, dest=self.to, src=self.src).text
+                translated = translator.translate(translated, dest=self.src, src=self.to).text
+            except Exception:
+                translated = txt
+        elif translated is None:
+            translated = txt
+
+        return str(translated)

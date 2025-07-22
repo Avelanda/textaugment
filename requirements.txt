@@ -1,5 +1,8 @@
-gensim>=4.0
-googletrans>=2
+# Core requirements
 nltk
 numpy
 textblob
+
+# Optional features
+gensim>=4.0  # for Word2Vec augmenter
+googletrans>=4.0.2  # for Translate augmenter
