@@ -5,8 +5,9 @@
 # Author: Joseph Sefara
 # URL: <https://github.com/dsfsi/textaugment/>
 # For license information, see LICENSE
+import asyncio
 
-from .constants import LANGUAGES
+from constants import LANGUAGES
 from textblob import TextBlob
 from googletrans import Translator
 
@@ -119,7 +120,13 @@ class Translate:
             self.to = kwargs['to']
             self.src = kwargs['src']
 
-    def augment(self, data):
+    async def _translate_text(self, _text_blob: TextBlob) -> str:
+        async with Translator() as translator:
+            _forward = await translator.translate(_text_blob, dest=self.to, src=self.src)
+            _backward = await translator.translate(_forward.text, dest=self.src, src=self.to)
+            return _backward.text
+
+    def augment(self, _data: str):
         """
         A method to paraphrase a sentence.
         
@@ -128,15 +135,12 @@ class Translate:
         :rtype:   str
         :return:  The augmented data
         """
-        if type(data) is not str:
+        if type(_data) is not str:
             raise TypeError("DataType must be a string")
-        data = TextBlob(data.lower())
-        try:  # Switch to googletrans to do translation.
-            translator = Translator()
-            data = translator.translate(data, dest=self.to, src=self.src).text
-            data = translator.translate(data, dest=self.src, src=self.to).text
-        except Exception:
-            print("Error Not translated.\n")
-            raise
+                
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        translated = loop.run_until_complete(self._translate_text(TextBlob(_data.lower())))
+        loop.close()
 
-        return str(data).lower()
+        return translated
