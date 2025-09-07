@@ -6,6 +6,7 @@
 # URL: <https://github.com/dsfsi/textaugment/>
 # For license information, see LICENSE
 import asyncio
+from asyncio import AbstractEventLoop
 
 from constants import LANGUAGES
 from textblob import TextBlob
@@ -138,9 +139,9 @@ class Translate:
         if type(_data) is not str:
             raise TypeError("DataType must be a string")
                 
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        translated = loop.run_until_complete(self._translate_text(TextBlob(_data.lower())))
-        loop.close()
+        event_loop: AbstractEventLoop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        translated: str = event_loop.run_until_complete(self._translate_text(TextBlob(_data.lower())))
+        event_loop.close()
 
         return translated
