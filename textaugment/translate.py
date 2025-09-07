@@ -8,7 +8,7 @@
 import asyncio
 from asyncio import AbstractEventLoop
 
-from constants import LANGUAGES
+from .constants import LANGUAGES
 from textblob import TextBlob
 from googletrans import Translator
 
