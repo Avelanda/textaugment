@@ -93,6 +93,7 @@ class EDA:
         :return:  Constructer do not return.
         """
         nltk.download('stopwords')
+        nltk.download('wordnet')
         
         self.stopwords = stopwords.words('english') if stop_words is None else stop_words
         self.sentence = None

@@ -9,7 +9,6 @@ import asyncio
 from asyncio import AbstractEventLoop
 
 from .constants import LANGUAGES
-from textblob import TextBlob
 from googletrans import Translator
 
 
@@ -121,13 +120,13 @@ class Translate:
             self.to = kwargs['to']
             self.src = kwargs['src']
 
-    async def _translate_text(self, _text_blob: TextBlob) -> str:
+    async def _translate_text(self, _text: str) -> str:
         async with Translator() as translator:
-            _forward = await translator.translate(_text_blob, dest=self.to, src=self.src)
+            _forward = await translator.translate(_text, dest=self.to, src=self.src)
             _backward = await translator.translate(_forward.text, dest=self.src, src=self.to)
             return _backward.text
 
-    def augment(self, _data: str):
+    def augment(self, _text: str):
         """
         A method to paraphrase a sentence.
         
@@ -136,12 +135,12 @@ class Translate:
         :rtype:   str
         :return:  The augmented data
         """
-        if type(_data) is not str:
+        if type(_text) is not str:
             raise TypeError("DataType must be a string")
                 
-        event_loop: AbstractEventLoop = asyncio.new_event_loop()
-        asyncio.set_event_loop(event_loop)
-        translated: str = event_loop.run_until_complete(self._translate_text(TextBlob(_data.lower())))
-        event_loop.close()
+        _event_loop: AbstractEventLoop = asyncio.new_event_loop()
+        asyncio.set_event_loop(_event_loop)
+        _back_translated_text: str = _event_loop.run_until_complete(self._translate_text((_text.lower())))
+        _event_loop.close()
 
-        return translated
+        return _back_translated_text
