@@ -130,8 +130,8 @@ class Translate:
         """
         A method to paraphrase a sentence.
         
-        :type data: str
-        :param data: sentence used for data augmentation 
+        :type _text: str
+        :param _text: sentence used for data augmentation 
         :rtype:   str
         :return:  The augmented data
         """
