@@ -1,5 +1,4 @@
-gensim>=4.0
+gensim==4.3.3
 googletrans==4.0.2
-nltk
-numpy
-textblob
+nltk==3.9.1
+numpy==1.26.4
