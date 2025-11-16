@@ -1,4 +1,4 @@
-LANGUAGES = {
+LANGUAGES: dict[str, str] = {
     'af': 'afrikaans',
     'sq': 'albanian',
     'am': 'amharic',
@@ -107,4 +107,4 @@ LANGUAGES = {
     'he': 'Hebrew'
 }
 
-LANGCODES = dict(map(reversed, LANGUAGES.items()))
+LANGCODES: dict[str, str] = {value: key for (key, value) in LANGUAGES.items()}
