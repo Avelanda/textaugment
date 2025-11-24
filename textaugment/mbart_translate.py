@@ -4,74 +4,166 @@ from transformers import MBartForConditionalGeneration, MBart50TokenizerFast
 from transformers.tokenization_utils_base import BatchEncoding
 
 
-LANGUAGE_MAPPING: dict[str, dict[str, str]] = {
-    'ar': {'locale': 'ar_AR', 'name': 'Arabic'},
-    'cs': {'locale': 'cs_CZ', 'name': 'Czech'},
-    'de': {'locale': 'de_DE', 'name': 'German'},
-    'en': {'locale': 'en_XX', 'name': 'English'},
-    'es': {'locale': 'es_XX', 'name': 'Spanish'},
-    'et': {'locale': 'et_EE', 'name': 'Estonian'},
-    'fi': {'locale': 'fi_FI', 'name': 'Finnish'},
-    'fr': {'locale': 'fr_XX', 'name': 'French'},
-    'gu': {'locale': 'gu_IN', 'name': 'Gujarati'},
-    'hi': {'locale': 'hi_IN', 'name': 'Hindi'},
-    'it': {'locale': 'it_IT', 'name': 'Italian'},
-    'ja': {'locale': 'ja_XX', 'name': 'Japanese'},
-    'kk': {'locale': 'kk_KZ', 'name': 'Kazakh'},
-    'ko': {'locale': 'ko_KR', 'name': 'Korean'},
-    'lt': {'locale': 'lt_LT', 'name': 'Lithuanian'},
-    'lv': {'locale': 'lv_LV', 'name': 'Latvian'},
-    'my': {'locale': 'my_MM', 'name': 'Burmese'},
-    'ne': {'locale': 'ne_NP', 'name': 'Nepali'},
-    'nl': {'locale': 'nl_XX', 'name': 'Dutch'},
-    'ro': {'locale': 'ro_RO', 'name': 'Romanian'},
-    'ru': {'locale': 'ru_RU', 'name': 'Russian'},
-    'si': {'locale': 'si_LK', 'name': 'Sinhala'},
-    'tr': {'locale': 'tr_TR', 'name': 'Turkish'},
-    'vi': {'locale': 'vi_VN', 'name': 'Vietnamese'},
-    'zh': {'locale': 'zh_CN', 'name': 'Chinese'},
-    'af': {'locale': 'af_ZA', 'name': 'Afrikaans'},
-    'az': {'locale': 'az_AZ', 'name': 'Azerbaijani'},
-    'bn': {'locale': 'bn_IN', 'name': 'Bengali'},
-    'fa': {'locale': 'fa_IR', 'name': 'Persian'},
-    'he': {'locale': 'he_IL', 'name': 'Hebrew'},
-    'hr': {'locale': 'hr_HR', 'name': 'Croatian'},
-    'id': {'locale': 'id_ID', 'name': 'Indonesian'},
-    'ka': {'locale': 'ka_GE', 'name': 'Georgian'},
-    'km': {'locale': 'km_KH', 'name': 'Khmer'},
-    'mk': {'locale': 'mk_MK', 'name': 'Macedonian'},
-    'ml': {'locale': 'ml_IN', 'name': 'Malayalam'},
-    'mn': {'locale': 'mn_MN', 'name': 'Mongolian'},
-    'mr': {'locale': 'mr_IN', 'name': 'Marathi'},
-    'pl': {'locale': 'pl_PL', 'name': 'Polish'},
-    'ps': {'locale': 'ps_AF', 'name': 'Pashto'},
-    'pt': {'locale': 'pt_XX', 'name': 'Portuguese'},
-    'sv': {'locale': 'sv_SE', 'name': 'Swedish'},
-    'sw': {'locale': 'sw_KE', 'name': 'Swahili'},
-    'ta': {'locale': 'ta_IN', 'name': 'Tamil'},
-    'te': {'locale': 'te_IN', 'name': 'Telugu'},
-    'th': {'locale': 'th_TH', 'name': 'Thai'},
-    'tl': {'locale': 'tl_XX', 'name': 'Tagalog'},
-    'uk': {'locale': 'uk_UA', 'name': 'Ukrainian'},
-    'ur': {'locale': 'ur_PK', 'name': 'Urdu'},
-    'xh': {'locale': 'xh_ZA', 'name': 'Xhosa'},
-    'gl': {'locale': 'gl_ES', 'name': 'Galician'},
-    'sl': {'locale': 'sl_SI', 'name': 'Slovene'}
+LANGUAGE_MAPPING: dict[str, str] = {
+    'ar': 'ar_AR',
+    'cs': 'cs_CZ',
+    'de': 'de_DE',
+    'en': 'en_XX',
+    'es': 'es_XX',
+    'et': 'et_EE',
+    'fi': 'fi_FI',
+    'fr': 'fr_XX',
+    'gu': 'gu_IN',
+    'hi': 'hi_IN',
+    'it': 'it_IT',
+    'ja': 'ja_XX',
+    'kk': 'kk_KZ',
+    'ko': 'ko_KR',
+    'lt': 'lt_LT',
+    'lv': 'lv_LV',
+    'my': 'my_MM',
+    'ne': 'ne_NP',
+    'nl': 'nl_XX',
+    'ro': 'ro_RO',
+    'ru': 'ru_RU',
+    'si': 'si_LK',
+    'tr': 'tr_TR',
+    'vi': 'vi_VN',
+    'zh': 'zh_CN',
+    'af': 'af_ZA',
+    'az': 'az_AZ',
+    'bn': 'bn_IN',
+    'fa': 'fa_IR',
+    'he': 'he_IL',
+    'hr': 'hr_HR',
+    'id': 'id_ID',
+    'ka': 'ka_GE',
+    'km': 'km_KH',
+    'mk': 'mk_MK',
+    'ml': 'ml_IN',
+    'mn': 'mn_MN',
+    'mr': 'mr_IN',
+    'pl': 'pl_PL',
+    'ps': 'ps_AF',
+    'pt': 'pt_XX',
+    'sv': 'sv_SE',
+    'sw': 'sw_KE',
+    'ta': 'ta_IN',
+    'te': 'te_IN',
+    'th': 'th_TH',
+    'tl': 'tl_XX',
+    'uk': 'uk_UA',
+    'ur': 'ur_PK',
+    'xh': 'xh_ZA',
+    'gl': 'gl_ES',
+    'sl': 'sl_SI',
 }
 
 
 class MbartTranslate:
-    def __init__(self, src: str, to: str) -> None:
+    '''
+    A set of functions used to augment text.
+    Supported languages are:
+    Language Name	Code
+
+    Arabic          ar
+    Czech           cs
+    German          de
+    English         en
+    Spanish         es
+    Estonian        et
+    Finnish         fi
+    French          fr
+    Gujarati        gu
+    Hindi           hi
+    Italian         it
+    Japanese        ja
+    Kazakh          kk
+    Korean          ko
+    Lithuanian      lt
+    Latvian         lv
+    Burmese         my
+    Nepali          ne
+    Dutch           nl
+    Romanian        ro
+    Russian         ru
+    Sinhala         si
+    Turkish         tr
+    Vietnamese      vi
+    Chinese         zh
+    Afrikaans       af
+    Azerbaijani     az
+    Bengali         bn
+    Persian         fa
+    Hebrew          he
+    Croatian        hr
+    Indonesian      id
+    Georgian        ka
+    Khmer           km
+    Macedonian      mk
+    Malayalam       ml
+    Mongolian       mn
+    Marathi         mr
+    Polish          pl
+    Pashto          ps
+    Portuguese      pt
+    Swedish         sv
+    Swahili         sw
+    Tamil           ta
+    Telugu          te
+    Thai            th
+    Tagalog         tl
+    Ukrainian       uk
+    Urdu            ur
+    Xhosa           xh
+    Galician        gl
+    Slovene         sl
+
+    Example usage: ::
+        >>> from textaugment import MbartTranslate
+        >>> t = MbartTranslate(src='en',to='es')
+        >>> t.augment('I love school')
+        i adore school
+    '''
+
+    def __init__(
+        self,
+        src: str, 
+        to: str,
+        model_name: str = 'facebook/mbart-large-50-many-to-many-mmt'
+    ) -> None:
+        '''
+        A method to initialize parameters
+
+        :type src:      str
+        :param src:     source language of the text
+        :param to:      str
+        :param to:      Destination language to translate to. The language should be a family of the source language for better results. 
+                        The text will then be translated back to the source language
+        :rtype:         None
+        :return:        constructer do not return
+        '''
         if src not in LANGUAGE_MAPPING or to not in LANGUAGE_MAPPING:
             raise KeyError('src or to language not supported.')
-        self._from_locale: str = LANGUAGE_MAPPING.get(src, {}).get('locale', '')
-        self._to_locale: str = LANGUAGE_MAPPING.get(to, {}).get('locale', '')
+        self._from_locale: str | None = LANGUAGE_MAPPING.get(src)
+        self._to_locale: str | None = LANGUAGE_MAPPING.get(to)
 
-        model_name: str = 'facebook/mbart-large-50-many-to-many-mmt'
         self._model: MBartForConditionalGeneration = MBartForConditionalGeneration.from_pretrained(model_name)
         self._tokenizer: MBart50TokenizerFast = MBart50TokenizerFast.from_pretrained(model_name)
 
     def _translate(self, text: str, from_locale: str, to_locale: str) -> str:
+        '''
+        A private method to translate from a src_locale to tgt_locale using Mbart50-many-to-many
+
+        :type text:         str
+        :param text:        text to be translated
+        :type text:         str
+        :param from_locale: source language locale
+        :type text:         str
+        :param to_locale:   target language locale
+        :rtype text:         str
+        :return:            the translated text
+        '''
         self._tokenizer.src_lang = from_locale
         encoded_text: BatchEncoding = self._tokenizer(text, return_tensors='pt')
         generated_tokens: torch.Tensor = self._model.generate(
@@ -81,5 +173,13 @@ class MbartTranslate:
         return self._tokenizer.decode(generated_tokens.squeeze(0), skip_special_tokens=True)
 
     def augment(self, text: str) -> str:
+        '''
+        A method to paraphrase a sentence.
+        
+        :type text:     str
+        :param text:    sentence used for text augmentation
+        :rtype:         str
+        :return:        The augmented text
+        '''
         translated_text: str = self._translate(text.lower(), self._from_locale, self._to_locale)
         return self._translate(translated_text, self._to_locale, self._from_locale)
