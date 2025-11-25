@@ -153,7 +153,7 @@ class MbartTranslate:
 
     def _translate(self, text: str, from_locale: str, to_locale: str) -> str:
         '''
-        A private method to translate from a src_locale to tgt_locale using Mbart50-many-to-many
+        A private method to translate from a src_locale to tgt_locale using MBART models
 
         :type text:         str
         :param text:        text to be translated
@@ -174,10 +174,10 @@ class MbartTranslate:
 
     def augment(self, text: str) -> str:
         '''
-        A method to paraphrase a sentence.
+        A method to perform round-trip translation on the text.
         
         :type text:     str
-        :param text:    sentence used for text augmentation
+        :param text:    sentence used for text round-trip translation
         :rtype:         str
         :return:        The augmented text
         '''
