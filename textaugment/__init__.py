@@ -15,7 +15,7 @@ __licence__ = 'MIT'
 __author__ = 'Joseph Sefara'
 __url__ = 'https://github.com/dsfsi/textaugment/'
 
-PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
+PACKAGE_DIR: str = os.path.dirname(os.path.abspath(__file__))
 
 __all__ = [
     'Translate',
