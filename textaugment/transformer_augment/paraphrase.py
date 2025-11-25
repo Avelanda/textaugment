@@ -3,13 +3,14 @@ import platform
 from transformers import (
     AutoTokenizer,
     AutoModelForSeq2SeqLM, 
-    BatchEncoding, 
-    BitsAndBytesConfig
+    BitsAndBytesConfig,
+    Text2TextGenerationPipeline,
+    pipeline
 )
 
 import torch
 
-from typing import Any, Optional
+from typing import Any
 
 
 class Paraphrase:
@@ -18,9 +19,9 @@ class Paraphrase:
         model_name: str,
         num_beams: int = 10,
         padding: bool = True,
-        max_length: int | None = 128,
+        max_length: int | None = 256,
         early_stopping: bool = True,
-        num_return_sequences: int = 2
+        num_return_sequences: int = 5
     ) -> None:
         '''
         A method to initialize model, tokenizer, and device parameters
@@ -100,15 +101,8 @@ class Paraphrase:
 
         self.__model.eval()
         return self.__model
-    
-    def __format_input_text(self, text: str) -> str:
-        return (
-            f'paraphrase: {text}' 
-            if 't5' in self.__model_name.lower() 
-            else text
-        )
 
-    def augment(self, texts: list[str] | str) -> Optional[list[str] | str]:
+    def augment(self, text: str) -> list[str]:
         '''
         A method to paraphrase the text using a Seq2Seq model.
         
@@ -120,56 +114,31 @@ class Paraphrase:
         tokenizer: Any = self.__get__tokenizer
         model: Any = self.__get_model
 
-        if isinstance(texts, list):
-            input_texts: list[str] | str = [
-                self.__format_input_text(text)
-                for text in texts
-            ]
-        else:
-            input_texts: list[str] | str = self.__format_input_text(texts)
+        text = (
+            f'paraphrase: {text}' 
+            if 't5' in self.__model_name.lower() 
+            else text
+        )
 
-        print(input_texts)
+        paraphrase_pipeline: Text2TextGenerationPipeline = pipeline(
+            'text2text-generation',
+            model=model,
+            tokenizer=tokenizer
+        )
 
-        inputs: BatchEncoding = tokenizer(
-            input_texts, 
-            return_tensors='pt',
-            padding=self.__padding, 
+        pipeline_results: list[dict[str, str]] = paraphrase_pipeline(
+            text, 
+            num_beams=self.__num_beams,
             truncation=self.__truncation,
-            max_length=self.__max_length,
+            max_new_tokens=self.__max_length,
+            early_stopping=self.__early_stopping,
+            num_return_sequences=self.__num_return_sequences
+        )
 
-        ).to(self.__device)
+        return [
+            result['generated_text'].lower().replace('paraphrase: ', '')
+            for result in pipeline_results
+        ]
 
-        with torch.no_grad():
-            outputs: torch.Tensor = model.generate(
-                **inputs,
-                num_beams=self.__num_beams,
-                early_stopping=self.__early_stopping,
-                num_return_sequences=self.__num_return_sequences
-            )
+        
 
-            paraphrased_texts: list[str] = tokenizer.batch_decode(
-                outputs, 
-                skip_special_tokens=True
-            )
-
-            print(paraphrased_texts)
-
-            return ""
-            
-            # paraphrased_texts = [
-            #     paraphrased_text.lower().replace('paraphrase: ', '') 
-            #     for paraphrased_text in paraphrased_texts
-            # ]
-
-            # paraphrased_texts = [
-            #     paraphrased_text 
-            #     for paraphrased_text in paraphrased_texts 
-            #     if text.lower() != paraphrased_text
-            # ] 
-
-            # if len(paraphrased_texts) == 0:
-            #     return None
-            # elif len(paraphrased_texts) == 1:
-            #     return paraphrased_texts[0]
-            # else:
-            #     return paraphrased_texts
