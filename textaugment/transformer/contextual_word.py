@@ -70,30 +70,7 @@ class ContextualWordAugmentor:
             spacy.cli.download(spacy_model)
         self.__nlp: Language = spacy.load(spacy_model)
 
-        self._set_model_device()
-
         logging.set_verbosity_error()
-
-    def _set_model_device(self) -> None:
-        '''
-        Initialize the torch device for the pipeline.
-        MPS on macOS, CUDA if available, else CPU
-
-        :rtype: None
-        :return: None
-        '''
-        if platform.system() == 'Darwin': 
-            self.__device: torch.device = torch.device(
-                'mps' 
-                if torch.backends.mps.is_available() 
-                else 'cpu'
-            )
-        else:
-            self.__device: torch.device = torch.device(
-                'cuda' 
-                if torch.cuda.is_available()
-                else 'cpu'
-            )
     
     @property
     def __get_pipeline(self) -> FillMaskPipeline:
@@ -106,10 +83,15 @@ class ContextualWordAugmentor:
         if self.__pipeline is None:
             tokenizer: Any = AutoTokenizer.from_pretrained(self.__model_name)
             self.__mask_token = tokenizer.mask_token
+
+            if platform.system() == 'Darwin': 
+                device: str = 'mps' if torch.backends.mps.is_available() else 'cpu'
+            else:
+                device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
             
             quantization_config: BitsAndBytesConfig | None = (
                 BitsAndBytesConfig(load_in_8bit=True)
-                if self.__device.type in ['cuda', 'cpu'] 
+                if device in ['cuda', 'cpu'] 
                 else None
             )
 

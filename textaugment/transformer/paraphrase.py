@@ -45,29 +45,6 @@ class ParaphraseAugmentor:
         self.__num_return_sequences: int = num_return_sequences
 
         self.__pipeline: Optional[Text2TextGenerationPipeline] = None
-
-        self._set_model_device()
-
-    def _set_model_device(self) -> None:
-        '''
-        Initialize the torch device for the pipeline.
-        MPS on macOS, CUDA if available, else CPU
-
-        :rtype: None
-        :return: None
-        '''
-        if platform.system() == 'Darwin': 
-            self.__device: torch.device = torch.device(
-                'mps' 
-                if torch.backends.mps.is_available() 
-                else 'cpu'
-            )
-        else:
-            self.__device: torch.device = torch.device(
-                'cuda' 
-                if torch.cuda.is_available()
-                else 'cpu'
-            )
     
     @property
     def __get_pipeline(self) -> Text2TextGenerationPipeline:
@@ -80,9 +57,14 @@ class ParaphraseAugmentor:
         if self.__pipeline is None:
             tokenizer: Any = AutoTokenizer.from_pretrained(self.__model_name)
 
+            if platform.system() == 'Darwin': 
+                device: str = 'mps' if torch.backends.mps.is_available() else 'cpu'
+            else:
+                device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
+
             quantization_config: BitsAndBytesConfig | None = (
                 BitsAndBytesConfig(load_in_8bit=True)
-                if self.__device.type in ['cuda', 'cpu'] 
+                if device in ['cuda', 'cpu'] 
                 else None
             )
 
