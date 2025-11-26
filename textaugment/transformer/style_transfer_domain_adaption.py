@@ -1,41 +1,30 @@
 import platform
 
+import random
+
 from transformers import (
+    AutoModelForSeq2SeqLM,
     AutoTokenizer,
-    AutoModelForSeq2SeqLM, 
     BitsAndBytesConfig,
-    Text2TextGenerationPipeline,
-    pipeline
+    pipeline,
+    Text2TextGenerationPipeline
 )
+
 
 import torch
 
 from typing import Any, Optional
 
 
-class Paraphraser:
+class StyleTransferDomainAdapter:
     def __init__(
-        self, 
+        self,
         num_beams: int = 5,
-        max_new_tokens: int | None = 256,
+        max_new_tokens: int | None = 1024,
         early_stopping: bool = True,
         num_return_sequences: int = 5,
-        model_name: str = 'google-t5/t5-small',
+        model_name: str = 'google-t5/t5-small'
     ) -> None:
-        '''
-        Initialize the ParaphraseAugmentor object.
-
-        :type num_beams:                int
-        :param num_beams:               Number of beams for beam search.
-        :type max_new_tokens:           int | None
-        :param max_new_tokens:          Maximum number of new tokens to generate.
-        :type early_stopping:           bool
-        :param early_stopping:          Whether to stop early when all beams finish.
-        :type num_return_sequences:     int
-        :param num_return_sequences:    Number of paraphrases to return.
-        :type model_name:               str
-        :param model_name:              Sequence-to-sequence (Seq2Seq) model name (default: `google-t5/t5-small`)
-        '''
         self.__model_name: str = model_name
 
         self.__num_beams: int = num_beams
@@ -45,14 +34,15 @@ class Paraphraser:
         self.__num_return_sequences: int = num_return_sequences
 
         self.__pipeline: Optional[Text2TextGenerationPipeline] = None
-    
+
+
     @property
     def __get_pipeline(self) -> Text2TextGenerationPipeline:
         '''
         Lazily loads and returns a Text2TextGenerationPipeline
 
         :rtype:     Text2TextGenerationPipeline
-        :return:    Text2TextGenerationPipeline object for paraphrasing.
+        :return:    Text2TextGenerationPipeline object for style transfer domain adaption.
         '''
         if self.__pipeline is None:
             tokenizer: Any = AutoTokenizer.from_pretrained(self.__model_name)
@@ -85,23 +75,22 @@ class Paraphraser:
 
         return self.__pipeline
 
-    def augment(self, text: str) -> list[str]:
-        '''
-        Generates `num_return_sequences` paraphrases of the text.
-        
-        :type text:     str
-        :param text:    text to paraphrase
-        :rtype:         list[str]
-        :return:        The list paraphased texts
-        '''
-        text = (
-            f'paraphrase: {text}' 
-            if 't5' in self.__model_name.lower() 
-            else text
-        )
 
+    def augment(
+        self, 
+        text: str, 
+        domain: str='news',
+        style: str='informal'
+    ) -> list[str]:        
+        input_text = f'''
+            Rewrite the following text to the {domain} domain with {style} stlye.
+            Preserve meaning but change tone and wording.
+            Text:
+            {text}
+        '''
+        
         pipeline_results: list[dict[str, str]] = self.__get_pipeline(
-            text, 
+            input_text, 
             num_beams=self.__num_beams,
             truncation=self.__truncation,
             max_new_tokens=self.__max_new_tokens,
@@ -110,6 +99,7 @@ class Paraphraser:
         )
 
         return [
-            result['generated_text'].lower().replace('paraphrase: ', '')
+            result['generated_text']
             for result in pipeline_results
+            if result['generated_text']
         ]

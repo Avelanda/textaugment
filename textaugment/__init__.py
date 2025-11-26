@@ -17,7 +17,7 @@ __url__ = 'https://github.com/dsfsi/textaugment/'
 
 PACKAGE_DIR: str = os.path.dirname(os.path.abspath(__file__))
 
-__all__ = [
+__all__: list[str] = [
     'Translate',
     'Word2vec',
     'Wordnet',

@@ -22,7 +22,7 @@ import torch
 from typing import Any, Optional
 
 
-class ContextualWordAugmentor:
+class ContextualWordSubstituion:
     '''
     Implements selective word substitution [1] for contextualized  text augmentation.
     It focuses on word modifiers (15%), specifically adjectives (ADJ) and adverbs (ADV). 
@@ -45,7 +45,7 @@ class ContextualWordAugmentor:
         model_name: str = 'google-bert/bert-base-uncased'
     ) -> None:
         '''
-        Initialize the ContextualWordAugmentor object.
+        Initialize the ContextualWordSubstituion object.
 
         :type spacy_model:                  str
         :param spacy_model:                 spaCy model to load (default: 'en_core_web_sm').
