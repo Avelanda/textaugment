@@ -1,3 +1,5 @@
+import random
+
 from .pipeline_util import PipelineHelper
 from transformers import AutoModelForSeq2SeqLM, Text2TextGenerationPipeline
 
@@ -49,7 +51,7 @@ class Paraphraser:
             )
         return self.__pipeline
 
-    def augment(self, text: str) -> list[str]:
+    def augment(self, text: str) -> str:
         '''
         Generates `num_return_sequences` paraphrases of the text.
         
@@ -58,14 +60,14 @@ class Paraphraser:
         :rtype:         list[str]
         :return:        The list paraphased texts
         '''
-        text = (
+        input_text = (
             f'paraphrase: {text}' 
             if 't5' in self.__model_name.lower() 
             else text
         )
 
         pipeline_results: list[dict[str, str]] = self.__get_pipeline(
-            text, 
+            input_text, 
             num_beams=self.__num_beams,
             truncation=self.__truncation,
             max_new_tokens=self.__max_new_tokens,
@@ -73,7 +75,16 @@ class Paraphraser:
             num_return_sequences=self.__num_return_sequences
         )
 
-        return [
-            result['generated_text'].lower().replace('paraphrase: ', '')
+        generated_texts: list[str] = [
+            result['generated_text'].lower().replace('paraphrase:', '')
             for result in pipeline_results
         ]
+
+        filtered_generated_texts: list[str] = [
+            generated_text
+            for generated_text in generated_texts
+            if not text in generated_text and len(generated_text) >= 0.8 * len(text)
+        ]
+
+        return random.choice(filtered_generated_texts)
+        

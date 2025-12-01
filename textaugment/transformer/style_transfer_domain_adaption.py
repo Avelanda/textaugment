@@ -1,3 +1,5 @@
+import random
+
 from .pipeline_util import PipelineHelper
 from transformers import AutoModelForSeq2SeqLM, Text2TextGenerationPipeline
 
@@ -43,7 +45,7 @@ class StyleTransferDomainAdapter:
         text: str, 
         domain: str='news',
         style: str='informal'
-    ) -> list[str]:        
+    ) -> str:        
         input_text = f'''
             Rewrite the following text to the {domain} domain with {style} stlye.
             Preserve meaning but change tone and wording.
@@ -60,8 +62,17 @@ class StyleTransferDomainAdapter:
             num_return_sequences=self.__num_return_sequences
         )
 
-        return [
+        generated_texts: list[str] = [
             result['generated_text']
             for result in pipeline_results
             if result['generated_text']
         ]
+    
+        filtered_generated_texts: list[str] = [
+            generated_text
+            for generated_text in generated_texts
+            if not text in generated_text and len(generated_text) >= 0.8 * len(text)
+        ]
+
+        return random.choice(filtered_generated_texts)
+        
