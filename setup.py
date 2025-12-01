@@ -5,9 +5,9 @@ import re
 
 
 def find_version(fname):
-    """Attempts to find the version number in the file names fname.
+    '''Attempts to find the version number in the file names fname.
     Raises RuntimeError if not found.
-    """
+    '''
     version = ''
     with open(fname, 'r') as fp:
         reg = re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]')
@@ -25,7 +25,7 @@ __version__ = find_version('textaugment/__init__.py')
 
 
 def read(fname):
-    with open(fname, "r") as fh:
+    with open(fname, 'r') as fh:
         content = fh.read()
     return content
 
@@ -40,8 +40,8 @@ setuptools.setup(
     keywords=['text augmentation', 'python', 'natural language processing', 'nlp'],
     url='https://github.com/dsfsi/textaugment',
     description='A library for augmenting text for natural language processing applications.',
-    long_description=read("README.md"),
-    long_description_content_type="text/markdown",
+    long_description=read('README.md'),
+    long_description_content_type='text/markdown',
     install_requires=[],
     extras_require={
         'aeda': [],
@@ -58,16 +58,15 @@ setuptools.setup(
             'gensim==4.3.3',
             'googletrans==4.0.2',
             'nltk==3.9.1',
-            'numpy==1.26.4'
         ]
     },
     classifiers=[
-        "Intended Audience :: Developers",
-        "Natural Language :: English",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: Implementation :: PyPy",
-        "Topic :: Text Processing :: Linguistic",
+        'Intended Audience :: Developers',
+        'Natural Language :: English',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'Topic :: Text Processing :: Linguistic',
     ]
 )
