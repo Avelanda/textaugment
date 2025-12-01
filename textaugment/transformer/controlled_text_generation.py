@@ -1,23 +1,13 @@
 from dataclasses import dataclass, field
-
 from dotenv import load_dotenv
 
 from enum import Enum
 
-import platform
+from .pipeline_util import PipelineHelper
 
 import textwrap
 
-from transformers import (
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    BitsAndBytesConfig,
-    TextGenerationPipeline,
-    pipeline
-)
-import torch
-
-from typing import Any, Optional
+from transformers import AutoModelForCausalLM, Pipeline
 
 
 class Sentiment(Enum):
@@ -48,7 +38,7 @@ class TextGenerationControls:
     sentiment: Sentiment = Sentiment.POSITIVE
     style: Style = Style.FORMAL
     reading_level: ReadingLevel = ReadingLevel.ADVANCED
-    length: Length = Length.MEDIUM
+    length: Length = Length.SHORT
     include_keywords: list[str] = field(default_factory=list)
     exclude_keywords: list[str] = field(default_factory=list)
 
@@ -61,12 +51,12 @@ class ControlTextGeneration:
     ) -> None:
         self.__model_name: str = model_name
         self.__max_new_tokens: int = max_new_tokens
-        self.__pipeline: Optional[TextGenerationPipeline] = None
+        self.__pipeline: Pipeline | None = None
 
         load_dotenv()
 
     @property
-    def __get_pipeline(self) -> TextGenerationPipeline:
+    def __get_pipeline(self) -> Pipeline:
         '''
         Lazily loads and returns a TextGenerationPipeline
 
@@ -74,33 +64,11 @@ class ControlTextGeneration:
         :return:    TextGenerationPipeline object for controlled text generation.
         '''
         if self.__pipeline is None:
-            tokenizer: Any = AutoTokenizer.from_pretrained(self.__model_name)
-
-            if platform.system() == 'Darwin': 
-                device: str = 'mps' if torch.backends.mps.is_available() else 'cpu'
-            else:
-                device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-            quantization_config: BitsAndBytesConfig | None = (
-                BitsAndBytesConfig(load_in_8bit=True)
-                if device == 'cuda'
-                else None
-            )
-
-            model: Any = AutoModelForCausalLM.from_pretrained(
+            self.__pipeline = PipelineHelper.get_pipeline(
                 self.__model_name,
-                quantization_config=quantization_config,
+                AutoModelForCausalLM,
+                'text-generation'
             )
-
-            model.eval()
-
-            self.__pipeline = pipeline(
-                'text-generation',
-                model=model,
-                tokenizer=tokenizer,
-                device_map='auto'
-            )
-
         return self.__pipeline
 
     def __generate_prompt(
@@ -127,7 +95,7 @@ class ControlTextGeneration:
         Assistant:
         ''').lstrip()
     
-    def augment(self, text: str, controls: Optional[TextGenerationControls] = None) -> str:
+    def augment(self, text: str, controls: TextGenerationControls | None = None) -> str:
         if controls is None:
             controls = TextGenerationControls()
 

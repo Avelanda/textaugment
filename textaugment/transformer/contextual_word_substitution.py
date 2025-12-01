@@ -1,6 +1,7 @@
-import platform
-
 import random
+from typing import Any
+
+from .pipeline_util import PipelineHelper
 
 import spacy
 import spacy.cli
@@ -8,18 +9,7 @@ from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.util import is_package
 
-from transformers import (
-    AutoModelForMaskedLM, 
-    AutoTokenizer,
-    BitsAndBytesConfig,
-    FillMaskPipeline,
-    pipeline
-)
-from transformers import logging
-
-import torch
-
-from typing import Any, Optional
+from transformers import AutoModelForMaskedLM, FillMaskPipeline
 
 
 class ContextualWordSubstituion:
@@ -60,17 +50,15 @@ class ContextualWordSubstituion:
         :return:                            None
         '''
         self.__model_name: str = model_name
-        self.__mask_token: Optional[str] = None
-        self.__pipeline: Optional[FillMaskPipeline] = None
-
+        self.__mask_token: str | None = None
+        self.__pipeline: FillMaskPipeline | None = None
         self.__mask_probability: float = mask_token_probability
         self.__max_mask_token_fraction: float = max_mask_token_fraction
 
-        if not is_package:
+        if not is_package(spacy_model):
             spacy.cli.download(spacy_model)
         self.__nlp: Language = spacy.load(spacy_model)
 
-        logging.set_verbosity_error()
     
     @property
     def __get_pipeline(self) -> FillMaskPipeline:
@@ -81,35 +69,12 @@ class ContextualWordSubstituion:
         :return:    FillMaskPipeline object for masked word prediction.
         '''
         if self.__pipeline is None:
-            tokenizer: Any = AutoTokenizer.from_pretrained(self.__model_name)
-            self.__mask_token = tokenizer.mask_token
-
-            if platform.system() == 'Darwin': 
-                device: str = 'mps' if torch.backends.mps.is_available() else 'cpu'
-            else:
-                device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
-            
-            quantization_config: BitsAndBytesConfig | None = (
-                BitsAndBytesConfig(load_in_8bit=True)
-                if device in ['cuda', 'cpu'] 
-                else None
-            )
-
-            model: Any = AutoModelForMaskedLM.from_pretrained(
+            self.__pipeline = PipelineHelper.get_pipeline(
                 self.__model_name,
-                device_map='auto',
-                trust_remote_code=True,
-                quantization_config=quantization_config
+                AutoModelForMaskedLM,
+                'fill-mask'
             )
-
-            model.eval()
-
-            self.__pipeline = pipeline(
-                'fill-mask',
-                model=model,
-                tokenizer=tokenizer
-            )
-
+            self.__mask_token = self.__pipeline.tokenizer.mask_token
         return self.__pipeline
 
     def __generate_masked_text(self, text: str) -> str:

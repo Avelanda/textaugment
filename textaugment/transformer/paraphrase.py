@@ -1,16 +1,5 @@
-import platform
-
-from transformers import (
-    AutoTokenizer,
-    AutoModelForSeq2SeqLM, 
-    BitsAndBytesConfig,
-    Text2TextGenerationPipeline,
-    pipeline
-)
-
-import torch
-
-from typing import Any, Optional
+from .pipeline_util import PipelineHelper
+from transformers import AutoModelForSeq2SeqLM, Text2TextGenerationPipeline
 
 
 class Paraphraser:
@@ -37,14 +26,12 @@ class Paraphraser:
         :param model_name:              Sequence-to-sequence (Seq2Seq) model name (default: `google-t5/t5-small`)
         '''
         self.__model_name: str = model_name
-
         self.__num_beams: int = num_beams
         self.__max_new_tokens: int | None = max_new_tokens
         self.__early_stopping: bool = early_stopping
         self.__truncation: bool = False if max_new_tokens is None else True
         self.__num_return_sequences: int = num_return_sequences
-
-        self.__pipeline: Optional[Text2TextGenerationPipeline] = None
+        self.__pipeline: Text2TextGenerationPipeline | None = None
     
     @property
     def __get_pipeline(self) -> Text2TextGenerationPipeline:
@@ -55,34 +42,11 @@ class Paraphraser:
         :return:    Text2TextGenerationPipeline object for paraphrasing.
         '''
         if self.__pipeline is None:
-            tokenizer: Any = AutoTokenizer.from_pretrained(self.__model_name)
-
-            if platform.system() == 'Darwin': 
-                device: str = 'mps' if torch.backends.mps.is_available() else 'cpu'
-            else:
-                device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-            quantization_config: BitsAndBytesConfig | None = (
-                BitsAndBytesConfig(load_in_8bit=True)
-                if device in ['cuda', 'cpu'] 
-                else None
-            )
-
-            model: Any = AutoModelForSeq2SeqLM.from_pretrained(
+            self.__pipeline = PipelineHelper.get_pipeline(
                 self.__model_name,
-                device_map='auto',
-                trust_remote_code=True,
-                quantization_config=quantization_config,
+                AutoModelForSeq2SeqLM,
+                'text2text-generation'
             )
-
-            model.eval()
-
-            self.__pipeline = pipeline(
-                'text2text-generation',
-                model=model,
-                tokenizer=tokenizer
-            )
-
         return self.__pipeline
 
     def augment(self, text: str) -> list[str]:
