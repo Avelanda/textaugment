@@ -42,12 +42,25 @@ setuptools.setup(
     description='A library for augmenting text for natural language processing applications.',
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
-    install_requires=[
-        'gensim==4.3.3',
-        'googletrans==4.0.2',
-        'nltk==3.9.1',
-        'numpy==1.26.4'
-    ],
+    install_requires=[],
+    extras_require={
+        'aeda': [],
+
+        'eda': [
+            'nltk==3.9.1'
+        ],
+
+        'word2vec': [
+            'gensim==4.3.3'
+        ],
+
+        'all': [
+            'gensim==4.3.3',
+            'googletrans==4.0.2',
+            'nltk==3.9.1',
+            'numpy==1.26.4'
+        ]
+    },
     classifiers=[
         "Intended Audience :: Developers",
         "Natural Language :: English",
