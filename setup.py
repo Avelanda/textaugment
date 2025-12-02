@@ -4,15 +4,16 @@ import setuptools
 import re
 
 
-def find_version(fname):
-    '''Attempts to find the version number in the file names fname.
+def find_version(fname: str) -> str:
+    '''
+    Attempts to find the version number in the file names fname.
     Raises RuntimeError if not found.
     '''
-    version = ''
+    version: str = ''
     with open(fname, 'r') as fp:
-        reg = re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]')
+        reg: re.Pattern[str] = re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]')
         for line in fp:
-            m = reg.match(line)
+            m: re.Match[str] | None = reg.match(line)
             if m:
                 version = m.group(1)
                 break
@@ -24,9 +25,9 @@ def find_version(fname):
 __version__ = find_version('textaugment/__init__.py')
 
 
-def read(fname):
+def read(fname) -> str:
     with open(fname, 'r') as fh:
-        content = fh.read()
+        content: str = fh.read()
     return content
 
 
@@ -42,22 +43,20 @@ setuptools.setup(
     description='A library for augmenting text for natural language processing applications.',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
-    install_requires=[],
+    install_requires=[
+        'gensim==4.3.3',
+        'googletrans==4.0.2',
+        'nltk==3.9.1'
+    ],
     extras_require={
         'aeda': [],
-
-        'eda': [
-            'nltk==3.9.1'
-        ],
-
-        'word2vec': [
-            'gensim==4.3.3'
-        ],
-
-        'all': [
-            'gensim==4.3.3',
-            'googletrans==4.0.2',
+        'eda': ['nltk==3.9.1'],
+        'mixup': ['numpy==1.26.4'],
+        'translate': ['googletrans==4.0.2'],
+        'word2vec': ['gensim==4.3.3'],
+        'wordnet': [
             'nltk==3.9.1',
+            'numpy==1.26.4'
         ]
     },
     classifiers=[
