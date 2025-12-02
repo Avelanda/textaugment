@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Word2vec-based data augmentation 
 #
-# Copyright (C) 2023
+# Copyright (C) 2025
 # Author: Joseph Sefara
 # URL: <https://github.com/dsfsi/textaugment/>
 # For license information, see LICENSE
@@ -86,9 +86,9 @@ class Word2vec:
             try:
                 if type(self.model) is str:
                     self.model = gensim.models.Word2Vec.load(self.model)  # load word2vec or fasttext model
-            except FileNotFoundError:
-                print("Error: Model not found. Verify the path.\n")
-                raise ValueError("Error: Model not found. Verify the path.")
+            except FileNotFoundError as exc:
+                raise FileNotFoundError(
+                    "Error: Model not found. Verify the path.") from exc
 
     def geometric(self, data):
         """

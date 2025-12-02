@@ -57,5 +57,10 @@ setuptools.setup(
         "Programming Language :: Python :: Implementation :: PyPy",
         "Topic :: Text Processing :: Linguistic",
     ]
+#    extras_require={               # For V4
+#          'word2vec': ['gensim>=4.0'],
+#          'translate': ['googletrans>=4.0.2'],
+#          'all': ['gensim>=4.0', 'googletrans>=4.0.2']
+#      },
 )
 

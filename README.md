@@ -58,10 +58,14 @@ Cite this [paper](https://link.springer.com/chapter/10.1007%2F978-3-030-57321-8_
 
 * Python 3
 
-The following software packages are dependencies and will be installed automatically.
+The library installs its core dependencies automatically. Optional extras can be
+installed for additional augmenters.
 
 ```shell
-$ pip install numpy nltk gensim==3.8.3 textblob googletrans 
+$ pip install numpy nltk textblob
+# Install extras
+$ pip install 'textaugment[word2vec]'    # requires gensim
+$ pip install 'textaugment[translate]'   # requires googletrans
 
 ```
 The following code downloads NLTK corpus for [wordnet](http://www.nltk.org/howto/wordnet.html).
