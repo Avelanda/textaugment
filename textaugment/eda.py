@@ -75,7 +75,7 @@ class EDA:
             if kwargs['p'] > 1 or kwargs['p'] < 0:
                 raise TypeError("p must be a fraction between 0 and 1")
         if 'sentence' in kwargs:
-            if not isinstance(kwargs['sentence'].strip(), str) or len(kwargs['sentence'].strip()) == 0:
+            if not isinstance(kwargs['sentence'], str) or len(kwargs['sentence'].strip()) == 0:
                 raise TypeError("sentence must be a valid sentence")
         if 'n' in kwargs:
             if not isinstance(kwargs['n'], int):
