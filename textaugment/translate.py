@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 # WordNet-based data augmentation 
 #
-# Copyright (C) 2020
+# Copyright (C) 2025
 # Author: Joseph Sefara
 # URL: <https://github.com/dsfsi/textaugment/>
 # For license information, see LICENSE
+import asyncio
+from asyncio import AbstractEventLoop
 
 from .constants import LANGUAGES
-from textblob import TextBlob
-from textblob.exceptions import NotTranslated
-try:
-    from googletrans import Translator
-except Exception:  # googletrans might not be installed
-    Translator = None
+from googletrans import Translator
 
 
 class Translate: 
@@ -84,7 +81,9 @@ class Translate:
     Vietnamese	vi
     Welsh	cy
     Yiddish	yi
-
+    
+    And more are being added by Google 
+    
     Example usage: ::
         >>> from textaugment import Translate
         >>> t = Translate(src="en",to="es")
@@ -123,7 +122,13 @@ class Translate:
             self.to = kwargs['to']
             self.src = kwargs['src']
 
-    def augment(self, data):
+    async def _translate_text(self, _text_blob: TextBlob) -> str:
+        async with Translator() as translator:
+            _forward = await translator.translate(_text_blob, dest=self.to, src=self.src)
+            _backward = await translator.translate(_forward.text, dest=self.src, src=self.to)
+            return _backward.text
+
+    def augment(self, _data: str):
         """
         A method to paraphrase a sentence.
         
@@ -132,30 +137,12 @@ class Translate:
         :rtype:   str
         :return:  The augmented data
         """
-        if type(data) is not str:
+        if type(_data) is not str:
             raise TypeError("DataType must be a string")
-        txt = data
-        blob = TextBlob(txt)
+                
+        event_loop: AbstractEventLoop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        translated: str = event_loop.run_until_complete(self._translate_text(TextBlob(_data.lower())))
+        event_loop.close()
 
-        # TextBlob removed builtin translation in >0.17, so guard the call.
-        translated = None
-        if hasattr(blob, "translate"):
-            try:
-                translated = blob.translate(from_lang=self.src, to=self.to)
-                translated = translated.translate(from_lang=self.to, to=self.src)
-            except NotTranslated:
-                translated = None
-            except Exception:
-                translated = None
-
-        if translated is None and Translator is not None:
-            try:  # Fallback to googletrans
-                translator = Translator()
-                translated = translator.translate(txt, dest=self.to, src=self.src).text
-                translated = translator.translate(translated, dest=self.src, src=self.to).text
-            except Exception:
-                translated = txt
-        elif translated is None:
-            translated = txt
-
-        return str(translated)
+        return translated
