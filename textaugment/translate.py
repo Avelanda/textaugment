@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 # WordNet-based data augmentation 
 #
-# Copyright (C) 2020
+# Copyright (C) 2025
 # Author: Joseph Sefara
 # URL: <https://github.com/dsfsi/textaugment/>
 # For license information, see LICENSE
+import asyncio
+from asyncio import AbstractEventLoop
 
 from .constants import LANGUAGES
-from textblob import TextBlob
-try:
-    from textblob.translate import NotTranslated
-except ModuleNotFoundError:  # textblob>=0.17 moved NotTranslated
-    from textblob.exceptions import NotTranslated
 from googletrans import Translator
 
 
@@ -84,7 +81,9 @@ class Translate:
     Vietnamese	vi
     Welsh	cy
     Yiddish	yi
-
+    
+    And more are being added by Google 
+    
     Example usage: ::
         >>> from textaugment import Translate
         >>> t = Translate(src="en",to="es")
@@ -123,7 +122,13 @@ class Translate:
             self.to = kwargs['to']
             self.src = kwargs['src']
 
-    def augment(self, data):
+    async def _translate_text(self, _text_blob: TextBlob) -> str:
+        async with Translator() as translator:
+            _forward = await translator.translate(_text_blob, dest=self.to, src=self.src)
+            _backward = await translator.translate(_forward.text, dest=self.src, src=self.to)
+            return _backward.text
+
+    def augment(self, _data: str):
         """
         A method to paraphrase a sentence.
         
@@ -132,17 +137,12 @@ class Translate:
         :rtype:   str
         :return:  The augmented data
         """
-        if type(data) is not str:
+        if type(_data) is not str:
             raise TypeError("DataType must be a string")
-        data_blob = TextBlob(data)
-        try:
-            if hasattr(data_blob, "translate"):
-                data_blob = data_blob.translate(from_lang=self.src, to=self.to)
-                data_blob = data_blob.translate(from_lang=self.to, to=self.src)
-            else:
-                raise NotTranslated
-        except NotTranslated:
-            # Fallback: return original data if translation is not available
-            data_blob = data
+                
+        event_loop: AbstractEventLoop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        translated: str = event_loop.run_until_complete(self._translate_text(TextBlob(_data.lower())))
+        event_loop.close()
 
-        return str(data_blob)
+        return translated
