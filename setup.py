@@ -43,10 +43,10 @@ setuptools.setup(
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
     install_requires=[
-        'gensim==4.3.3',
-        'googletrans==4.0.2',
-        'nltk==3.9.1',
-        'numpy==1.26.4'
+        'gensim>=4.0',
+        'googletrans>=4.0',
+        'nltk>=3',
+        'numpy>=1'
     ],
     classifiers=[
         "Intended Audience :: Developers",
@@ -58,3 +58,4 @@ setuptools.setup(
         "Topic :: Text Processing :: Linguistic",
     ]
 )
+
