@@ -7,6 +7,8 @@
 # For license information, see LICENSE
 
 import gensim
+from gensim.models.keyedvectors import KeyedVectors
+
 import numpy as np
 import random
 
@@ -81,14 +83,24 @@ class Word2vec:
             raise
         else:
             self.runs = kwargs["runs"] 
-            self.model = kwargs["model"]
+            model = kwargs["model"]
             self.p = kwargs["p"]
             try:
-                if type(self.model) is str:
-                    self.model = gensim.models.Word2Vec.load(self.model)  # load word2vec or fasttext model
+                if type(model) is str:
+                    model = gensim.models.Word2Vec.load(model)  # load word2vec or fasttext model
             except FileNotFoundError:
                 print("Error: Model not found. Verify the path.\n")
                 raise ValueError("Error: Model not found. Verify the path.")
+
+            self.__set_word_vectors(model)
+            
+    def __set_word_vectors(self, model) -> None:
+        if isinstance(model, KeyedVectors):
+            self.wv = model
+        elif hasattr(model, 'wv'):
+            self.wv = model.wv
+        else:
+            raise TypeError('Model has neither KeyedVectors nor a .wv attribute.')
 
     def geometric(self, data):
         """
@@ -131,7 +143,7 @@ class Word2vec:
             for _ in range(self.runs):
                 for index in range(len(data_tokens)):  # Index from 0 to length of data_tokens
                     try:
-                        similar_words = [syn for syn, t in self.model.wv.most_similar(data_tokens[index], topn=top_n)]
+                        similar_words = [syn for syn, t in self.wv.most_similar(data_tokens[index], topn=top_n)]
                         r = random.randrange(len(similar_words))
                         data_tokens[index] = similar_words[r].lower()  # Replace with random synonym from 10 synonyms
                     except KeyError:
@@ -142,7 +154,7 @@ class Word2vec:
                 words = self.geometric(data=data_tokens_idx).tolist()  # List of words indexed
                 for w in words:
                     try:
-                        similar_words_and_weights = [(syn, t) for syn, t in self.model.wv.most_similar(w[1])]
+                        similar_words_and_weights = [(syn, t) for syn, t in self.wv.most_similar(w[1])]
                         similar_words = [word for word, t in similar_words_and_weights]
                         similar_words_weights = [t for word, t in similar_words_and_weights]
                         word = random.choices(similar_words, similar_words_weights, k=1)
