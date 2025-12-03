@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # WordNet-based data augmentation 
 #
-# Copyright (C) 2020
+# Copyright (C) 2025
 # Author: Joseph Sefara
 # URL: <https://github.com/dsfsi/textaugment/>
 # For license information, see LICENSE
@@ -81,7 +81,9 @@ class Translate:
     Vietnamese	vi
     Welsh	cy
     Yiddish	yi
-
+    
+    And more are being added by Google 
+    
     Example usage: ::
         >>> from textaugment import Translate
         >>> t = Translate(src="en",to="es")

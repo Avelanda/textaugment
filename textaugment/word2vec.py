@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Word2vec-based data augmentation 
 #
-# Copyright (C) 2023
+# Copyright (C) 2025
 # Author: Joseph Sefara
 # URL: <https://github.com/dsfsi/textaugment/>
 # For license information, see LICENSE
