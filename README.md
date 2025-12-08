@@ -7,7 +7,7 @@
 
 ## You have just found TextAugment.
 
-TextAugment is a Python 3 library for augmenting text for natural language processing applications. TextAugment stands on the giant shoulders of [NLTK](https://www.nltk.org/), [Gensim v3.x](https://radimrehurek.com/gensim/), and [TextBlob](https://textblob.readthedocs.io/) and plays nicely with them.
+TextAugment is a Python 3 library for augmenting text for natural language processing applications. TextAugment stands on the giant shoulders of [NLTK](https://www.nltk.org/), [Gensim v3.x](https://radimrehurek.com/gensim/), and [Googletrans](https://py-googletrans.readthedocs.io) and plays nicely with them.
 
 ## Acknowledgements
 Cite this [paper](https://link.springer.com/chapter/10.1007%2F978-3-030-57321-8_21) when using this library. [Arxiv Version](https://arxiv.org/abs/1907.03752)
@@ -25,19 +25,19 @@ Cite this [paper](https://link.springer.com/chapter/10.1007%2F978-3-030-57321-8_
 
 # Table of Contents
 
-- [Features](#Features)
+- [Features](#features)
 - [Citation Paper](#citation-paper) 
-	- [Requirements](#Requirements)
-	- [Installation](#Installation)
-	- [How to use](#How-to-use)
-		- [Word2vec-based augmentation](#Word2vec-based-augmentation)
-		- [WordNet-based augmentation](#WordNet-based-augmentation)
-		- [RTT-based augmentation](#RTT-based-augmentation)
+	- [Requirements](#requirements)
+	- [Installation](#installation)
+	- [How to use](#how-to-use)
+		- [Word2vec-based augmentation](#fasttextword2vec-based-augmentation)
+		- [WordNet-based augmentation](#wordnet-based-augmentation)
+		- [RTT-based augmentation](#rtt-based-augmentation)
 - [Easy data augmentation (EDA)](#eda-easy-data-augmentation-techniques-for-boosting-performance-on-text-classification-tasks)
 - [An easier data augmentation (AEDA)](#aeda-an-easier-data-augmentation-technique-for-text-classification)
 - [Mixup augmentation](#mixup-augmentation)
-  - [Implementation](#Implementation)
-- [Acknowledgements](#Acknowledgements)
+  - [Implementation](#implementation)
+- [Acknowledgements](#acknowledgements)
 
 ## Features
 
@@ -62,10 +62,9 @@ The library installs its core dependencies automatically. Optional extras can be
 installed for additional augmenters.
 
 ```shell
-$ pip install numpy nltk textblob
+$ pip install numpy nltk 
 # Install extras
-$ pip install 'textaugment[word2vec]'    # requires gensim
-$ pip install 'textaugment[translate]'   # requires googletrans
+$ pip install textaugment
 
 ```
 The following code downloads NLTK corpus for [wordnet](http://www.nltk.org/howto/wordnet.html).
