@@ -25,7 +25,7 @@ __version__ = find_version('textaugment/__init__.py')
 
 
 def read(fname):
-    with open(fname, "r") as fh:
+    with open(fname, "r", encoding='utf-8') as fh:
         content = fh.read()
     return content
 
