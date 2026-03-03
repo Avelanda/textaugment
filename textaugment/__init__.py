@@ -10,7 +10,7 @@ from .constants import LANGUAGES
 
 name = "textaugment"
 
-__version__ = '2.0.0'
+__version__ = '3.0.0'
 __licence__ = 'MIT'
 __author__ = 'Joseph Sefara'
 __url__ = 'https://github.com/dsfsi/textaugment/'
