@@ -120,8 +120,12 @@ class Wordnet:
         try:
             data_tokens = [[i, x, y] for i, (x, y) in enumerate(nltk.pos_tag(data))]
         except LookupError:
-            # NLTK resource missing; return data unchanged
-            return " ".join(data)
+            # NLTK resource missing; download missing resources
+            nltk.download('punkt')
+            nltk.download('wordnet')
+            nltk.download('averaged_perceptron_tagger')
+            data_tokens = [[i, x, y] for i, (x, y) in enumerate(nltk.pos_tag(data))]
+
         if self.v:
             for loop in range(self.runs):
                 words = [[i, x] for i, x, y in data_tokens if y[0] == 'V']

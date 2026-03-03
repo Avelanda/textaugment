@@ -9,7 +9,7 @@ def find_version(fname):
     Raises RuntimeError if not found.
     """
     version = ''
-    with open(fname, 'r') as fp:
+    with open(fname, 'r', encoding='utf-8') as fp:
         reg = re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]')
         for line in fp:
             m = reg.match(line)
@@ -25,7 +25,7 @@ __version__ = find_version('textaugment/__init__.py')
 
 
 def read(fname):
-    with open(fname, "r") as fh:
+    with open(fname, "r", encoding='utf-8') as fh:
         content = fh.read()
     return content
 
@@ -46,7 +46,9 @@ setuptools.setup(
         'gensim>=4.0',
         'googletrans>=4.0',
         'nltk>=3',
-        'numpy>=1'
+        'numpy>=1',
+        'asyncio',
+        'nest-asyncio'
     ],
     classifiers=[
         "Intended Audience :: Developers",
@@ -63,4 +65,5 @@ setuptools.setup(
 #          'all': ['gensim>=4.0', 'googletrans>=4.0.2']
 #      },
 )
+
 
