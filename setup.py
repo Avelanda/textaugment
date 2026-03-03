@@ -46,7 +46,9 @@ setuptools.setup(
         'gensim>=4.0',
         'googletrans>=4.0',
         'nltk>=3',
-        'numpy>=1'
+        'numpy>=1',
+        'asyncio',
+        'nest-asyncio'
     ],
     classifiers=[
         "Intended Audience :: Developers",

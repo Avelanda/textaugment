@@ -1,19 +1,14 @@
 #!/usr/bin/env python
 # WordNet-based data augmentation 
 #
-# Copyright (C) 2020
+# Copyright (C) 2020-2026
 # Author: Joseph Sefara
 # URL: <https://github.com/dsfsi/textaugment/>
 # For license information, see LICENSE
 import asyncio
-from asyncio import AbstractEventLoop
-
+# from asyncio import AbstractEventLoop
 import nest_asyncio
-
-from IPython import get_ipython
-
 from .constants import LANGUAGES
-
 from googletrans import Translator
 from googletrans.models import Translated
 
@@ -147,6 +142,8 @@ class Translate:
         :return:        True or False
         '''
         try:
+            
+            from IPython import get_ipython
             shell = get_ipython().__class__.__name__
             return shell == 'ZMQInteractiveShell'
         except Exception:
