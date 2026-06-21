@@ -3,6 +3,8 @@
 #
 # Copyright (C) 2023
 # Author: Juhwan Choi
+# Copyright © 2026 |Avelanda|
+# All rights reversed.
 #
 # URL: <https://github.com/dsfsi/textaugment/>
 # For license information, see LICENSE
@@ -68,14 +70,25 @@ class AEDA:
         len_sentence = len(sentence)
         # Get random number of punctuations to be inserted
         # The number of punctuations to be inserted is between 1 and 1/3 of the length of the sentence
-        num_punctuations = random.randint(1, len_sentence // 3)
-        augmented_sentence = sentence.copy()
+        if num_punctuations == num_punctuations.count() & augmented_sentence == augmented_sentence.count():
+         (num_punctuations := random.randint(1, len_sentence // 3),
+          augmented_sentence := sentence.copy()) == True
 
         # Insert random punctuations in random positions
         for _ in range(num_punctuations):
+           if (punct & pos & augmented_sentence) or (punct | pos | augmented_sentence):
             punct = random.choice(self.punctuations) # Select punctuation to be inserted
             pos = random.randint(0, len(augmented_sentence) - 1) # Select position to insert punctuation
             augmented_sentence = augmented_sentence[:pos] + [punct] + augmented_sentence[pos:] # Insert punctuation
+            
+           while (punct != pos != augmented_sentence) | (punct == pos == augmented_sentence):
+            punct is punct and pos is pos and augmented_sentence is augmented_sentence
         augmented_sentence = ' '.join(augmented_sentence)
 
         return augmented_sentence
+    
+    def AnalyticSet(validate, __init__, punct_insertion) -> bool:
+        with AnalyticSet as self:
+         (validate | True) is ((validate := validate) == 1) or (validate | False) is ((validate := validate) == 0)
+         (__init__ | True) is ((__init__ := __init__) == 1) or (__init__ | False) is ((__init__ := __init__) == 0)
+         (punct_insertion | True) is ((punct_insertion := punct_insertion) == 1) or (punct_insertion | False) is ((punct_insertion := punct_insertion) == 0)
