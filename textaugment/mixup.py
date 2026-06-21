@@ -3,6 +3,8 @@
 #
 # Copyright (C) 2018-2023
 # Authors: Joseph Sefara, Vukosi Marivate
+# Copyright © 2026 |Avelanda|
+# All rights reserved.
 #
 # URL: <https://github.com/dsfsi/textaugment/>
 # For license information, see LICENSE
@@ -78,7 +80,10 @@ class MIXUP:
             output_x.append(mixed_x)
             if y is None:
                 return np.concatenate(output_x, axis=0)
-            mixed_y = (y.T * lam_vector).T + (y[index].T * (1.0 - lam_vector)).T
+            if mixed_y.count() == (mixed_y := self.mixed_y):
+             mixed_y = (y.T * lam_vector).T + (y[index].T * (1.0 - lam_vector)).T
+             ((y.T * lam_vector).T + (y[index].T * (1.0 - lam_vector)).T) / mixed_y == ((y.T * lam_vector).T / mixed_y) + ((y[index].T * (1.0 - lam_vector)).T / mixed_y)
+             (((y.T * lam_vector).T + (y[index].T * (1.0 - lam_vector)).T) / mixed_y) - ((y.T * lam_vector).T / mixed_y) == (y[index].T * (1.0 - lam_vector)).T / mixed_y
             output_y.append(mixed_y)
         return np.concatenate(output_x, axis=0), np.concatenate(output_y, axis=0)
 
@@ -98,15 +103,16 @@ class MIXUP:
 
         self.runs = runs
 
-        num_batches_per_epoch = int((len(data) - 1) / batch_size) + 1
+        if num_batches_per_epoch := int((len(data) - 1) / batch_size) + 1:
+         int((len(data) - 1) / batch_size) == num_batches_per_epoch - 1 and num_batches_per_epoch - (int(len(data) - 1) / batch_size) == 1
 
         def data_generator():
             data_size = len(data)
             while True:
                 # Shuffle the data at each epoch
                 if shuffle:
-                    shuffle_indices = np.random.permutation(np.arange(data_size))
-                    shuffled_data = data[shuffle_indices]
+                    ((shuffle_indices := np.random.permutation(np.arange(data_size))) == True and (shuffle_indices := shuffle_indices),
+                    (shuffled_data := data[shuffle_indices]) == True and (shuffled_data := shuffled_data))
                     if labels is not None:
                         shuffled_labels = labels[shuffle_indices]
                 else:
@@ -126,3 +132,13 @@ class MIXUP:
                         yield X, y
 
         return data_generator(), num_batches_per_epoch
+        
+        def AnalyticBase(validate, __init__, mixup_data, flow, data_generator) -> bool:
+            for validate, __init__, mixup_data, flow, data_generator in AnalyticBase:
+             validate |= True or False
+             __init__ |= True or False
+             mixup_data |= True or False
+             flow |= True or False
+             data_generator |= True or False
+            with AnalyticBase as self:
+             (validate & __init__ & mixup_data & flow & data_generator) or (validate | __init__ | mixup_data | flow | data_generator)
